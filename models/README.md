@@ -2,7 +2,22 @@
 
 This document explains the improvements made to the neural network and how to use them.
 
-## Improvements Implemented
+## Data Preprocessing (Critical First Step!)
+
+### Feature Selection & Data Leakage Fix
+Before model training, we identified and removed **data leakage** from outcome-dependent variables:
+- **Removed**: `unrealized`, `conspiracy`, `attempt`, `coup_id`, `event_type`
+- **Kept**: 14 predictive features (coup actor types, characteristics, temporal features)
+- **Result**: Accuracy dropped from 100% (suspicious) to 72.68% (realistic)
+
+**Dataset:**
+- Training: 784 samples × 14 features
+- Test: 197 samples × 14 features
+- All features retained despite low correlations (neural networks learn non-linear patterns)
+
+**For details**, see [FEATURE_SELECTION_ANALYSIS.md](../FEATURE_SELECTION_ANALYSIS.md)
+
+## Model Improvements Implemented
 
 ### 1. **Adam Optimizer (Manual Implementation)**
 - **What it is**: Adaptive Moment Estimation - combines momentum and RMSprop
@@ -44,9 +59,16 @@ This document explains the improvements made to the neural network and how to us
 ### Basic Usage with Adam
 ```python
 from models.neural_network import NeuralNetwork
+import numpy as np
+
+# Load preprocessed data (14 features, no data leakage)
+X_train = np.load('../data/X_train.npy')
+y_train = np.load('../data/y_train.npy')
+X_test = np.load('../data/X_test.npy')
+y_test = np.load('../data/y_test.npy')
 
 model = NeuralNetwork(
-    layer_sizes=[15, 32, 16, 1],
+    layer_sizes=[14, 32, 16, 1],  # Input: 14 features (cleaned dataset)
     learning_rate=0.001,
     optimizer='adam',
     l2_lambda=0.01,
@@ -97,7 +119,13 @@ model_rmsprop = NeuralNetwork(..., optimizer='rmsprop', learning_rate=0.001)
 - **L2 lambda**: 0.01 (default), try 0.001 - 0.1
 - **Dropout**: 0.2 (default), try 0.0 - 0.5
 - **Batch size**: 32, try 16 - 128
-- **Architecture**: Start with [input, 32, 16, 1], experiment with depth/width
+- **Architecture**: Start with [14, 32, 16, 1] for 14-feature dataset, experiment with depth/width
+
+### Performance Expectations:
+- **Baseline**: 72.68% (Random Forest on clean data)
+- **Goal**: Match or exceed 72-75% accuracy
+- **Class distribution**: 45% success / 55% failure (slightly imbalanced)
+- **Metrics**: Use precision/recall/F1, not just accuracy
 
 ### Training Tips:
 1. **Start simple**: Use Adam with default settings
@@ -131,7 +159,15 @@ Gradient_w = Gradient_BCE + (λ / m) * w
 
 ## Performance Comparison
 
-Expected improvements with Adam vs SGD:
+### Expected improvements with Adam vs SGD:
 - **Convergence speed**: 2-5x faster
 - **Final accuracy**: 0-5% better
 - **Stability**: More robust to hyperparameter choices
+
+### Realistic Performance (After Data Leakage Fix):
+- **Random Forest baseline**: 72.68% ± 2.25%
+- **Neural Network target**: 72-75% accuracy range
+- **Before data cleaning**: 100% (unrealistic - data leakage!)
+- **After data cleaning**: 70-75% (realistic for challenging prediction task)
+
+See [FEATURE_SELECTION_ANALYSIS.md](../FEATURE_SELECTION_ANALYSIS.md) for details on data cleaning process.

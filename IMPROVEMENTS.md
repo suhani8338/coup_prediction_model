@@ -2,6 +2,31 @@
 
 ## What Was Improved
 
+### 0. **Data Preprocessing & Feature Selection** 🔧
+Critical data quality improvements that directly impact model performance.
+
+**Data Leakage Removed:**
+- Identified and removed 5 outcome-dependent variables that were leaking target information
+- `unrealized`, `conspiracy`, `attempt`: Event outcome classifications (describe what happened, not predictors)
+- `coup_id`, `event_type`: Non-informative identifiers
+- Result: CV accuracy dropped from suspicious 100% to realistic 72.68%
+
+**Feature Set:**
+- **Final features**: 14 predictive features (no outcome variables)
+- **Dataset**: 981 samples → Training: 784×14, Test: 197×14
+- **Features kept**: All coup characteristics despite low correlations
+  - Coup actor types: military, dissident, rebel, palace, foreign
+  - Coup characteristics: auto, popular, counter, resign, other
+  - Temporal/contextual: year_norm, month_sin, month_cos, country_freq
+
+**Why keep low-correlation features:**
+- Neural networks learn non-linear interactions (correlation only measures linear relationships)
+- Domain knowledge: "who" and "how" of coups matter for prediction
+- Random Forest analysis showed ALL features contribute (importance >0.5%)
+- Small dataset (981 samples) benefits from retaining informative features
+
+**Documentation**: See [FEATURE_SELECTION_ANALYSIS.md](FEATURE_SELECTION_ANALYSIS.md) for detailed analysis
+
 ### 1. **Adam Optimizer (Manually Implemented)** ✨
 The crown jewel of these improvements. Adam is significantly better than vanilla SGD.
 
@@ -117,6 +142,12 @@ python models/compare_models.py
 | Hyperparameter Sensitivity | High | Low |
 | Final Accuracy | Variable | More stable |
 
+**Realistic Performance Expectations:**
+- **Baseline** (Random Forest with clean data): 72.68% ± 2.25%
+- **Neural Network Goal**: Match or exceed 72-75% accuracy
+- **Note**: After removing data leakage, 70-75% is realistic for this challenging task
+- **Class Distribution**: ~45% success, ~55% failure (slightly imbalanced)
+
 ## Hyperparameter Recommendations
 
 ### For Adam:
@@ -142,7 +173,20 @@ models/
 ├── neural_network.py          # Core NN class with Adam
 ├── train_neural_network.py    # Training and evaluation
 ├── compare_models.py          # Compare optimizers/hyperparameters
-└── README.md                  # Detailed documentation
+└── README.md                  # Detailed model documentation
+
+data/
+├── Coup data 2.1.2.csv       # Original dataset
+├── X_train.npy               # Clean training features (784×14)
+├── X_test.npy                # Clean test features (197×14)
+├── y_train.npy               # Training labels (784,)
+└── y_test.npy                # Test labels (197,)
+
+notebooks/
+└── eda.ipynb                 # EDA with feature selection analysis
+
+FEATURE_SELECTION_ANALYSIS.md  # Data leakage & feature selection details
+IMPROVEMENTS.md               # This file - model improvements summary
 ```
 
 ## Quick Reference
@@ -193,7 +237,10 @@ Together they prevent the model from being too confident about training data pat
 ---
 
 **Next Steps:**
-1. Run `train_neural_network.py` to see Adam in action
-2. Try `compare_models.py` to see optimizer differences
-3. Experiment with hyperparameters
-4. Implement other models (logistic regression, random forest) for comparison
+1. ✅ **Data cleaned**: Removed outcome-dependent variables (see FEATURE_SELECTION_ANALYSIS.md)
+2. Run `train_neural_network.py` to train on clean 14-feature dataset
+3. Try `compare_models.py` to compare optimizers
+4. Aim to match/exceed 72.68% baseline (Random Forest)
+5. Experiment with hyperparameters and architectures
+6. Evaluate with precision/recall (not just accuracy) due to class imbalance
+7. Consider ensemble methods combining multiple models
