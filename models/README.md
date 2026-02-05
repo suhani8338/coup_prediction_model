@@ -17,6 +17,126 @@ Before model training, we identified and removed **data leakage** from outcome-d
 
 **For details**, see [FEATURE_SELECTION_ANALYSIS.md](../FEATURE_SELECTION_ANALYSIS.md)
 
+## Model Comparison
+
+### Dependencies
+
+The comparison script requires:
+```bash
+pip install numpy scikit-learn matplotlib seaborn
+```
+
+### Running the Comparison Script
+
+The `compare_models.py` script provides comprehensive model comparison functionality:
+
+```bash
+python models/compare_models.py
+```
+
+### Models Compared
+
+#### Traditional ML Models:
+1. **Logistic Regression**
+   - Max iterations: 1000
+   - Baseline linear classifier
+   
+2. **Decision Tree**
+   - Max depth: 10
+   - Non-linear decision boundaries
+   
+3. **Random Forest**
+   - 100 estimators
+   - Max depth: 10
+   - Ensemble method with bagging
+   
+4. **SVM (Support Vector Machine)**
+   - RBF kernel
+   - Non-linear classification
+
+5. **Neural Network**
+   - Architecture: [14, 32, 16, 1]
+   - Adam optimizer (lr=0.001)
+   - L2 regularization (λ=0.01)
+   - Dropout: 0.2
+   - Early stopping patience: 30
+
+### Metrics Reported
+
+For each model, the script reports:
+- **Training Accuracy**: Performance on training data
+- **Test Accuracy**: Performance on held-out test data
+- **Precision**: True positives / (True positives + False positives)
+- **Recall**: True positives / (True positives + False negatives)
+- **F1 Score**: Harmonic mean of precision and recall
+
+The best model is selected based on **Test F1 Score**.
+
+### Visualizations Generated
+
+The script automatically generates comprehensive visualizations:
+
+#### Model Comparison Charts (`model_comparison.png`):
+1. **Test Accuracy Bar Chart** - Side-by-side accuracy comparison
+2. **Train vs Test Accuracy** - Identifies overfitting patterns
+3. **Precision/Recall/F1 Grouped Bar Chart** - Detailed metric breakdown
+4. **Radar Chart** - Multi-metric view of top 3 models
+
+#### Optimizer Comparison Charts (`optimizer_comparison.png`):
+1. **Training Loss Curves** - Convergence speed visualization
+2. **Test Accuracy Bar Chart** - Final performance comparison
+3. **F1 Score Comparison** - Overall effectiveness
+4. **Epochs to Convergence** - Training efficiency
+
+#### Grid Search Results (`grid_search_results.png`):
+1. **Heatmap: Learning Rate vs L2 Lambda** - Interactive parameter relationships
+2. **Heatmap: Learning Rate vs Dropout** - Regularization impact
+3. **Top 10 Configurations** - Ranked performance
+4. **Parameter Impact Analysis** - Individual parameter effects
+
+### Additional Analyses
+
+The script also includes (commented out by default):
+
+1. **Optimizer Comparison** - Compare SGD, Adam, and RMSprop on the Neural Network
+   - Generates training loss curves, accuracy comparisons, and convergence analysis
+   - Saves visualization to `optimizer_comparison.png`
+   
+2. **Hyperparameter Grid Search** - Systematic search over:
+   - Learning rate: [0.0001, 0.001, 0.01]
+   - L2 lambda: [0.001, 0.01, 0.1]
+   - Dropout rate: [0.0, 0.2, 0.5]
+   - Generates heatmaps and ranked configuration charts
+   - Saves visualization to `grid_search_results.png`
+
+To enable these, uncomment the relevant sections at the bottom of [compare_models.py](compare_models.py).
+
+**Note**: All visualizations are automatically saved as high-resolution PNG files (300 DPI) and displayed during execution.
+
+### Interpreting the Visualizations
+
+**Model Comparison:**
+- Look for models with high test accuracy but similar train/test accuracy (no overfitting)
+- F1 score is most important for imbalanced datasets
+- Radar chart shows overall model strength across all metrics
+
+**Optimizer Comparison:**
+- Steeper loss curves = faster convergence
+- Fewer epochs to convergence = more efficient training
+- Compare final F1 scores to find best optimizer
+
+**Grid Search:**
+- Darker red colors in heatmaps = better performance
+- Use heatmaps to identify optimal parameter ranges
+- Parameter impact chart shows which parameters matter most
+
+### Expected Performance Range
+
+Based on the cleaned dataset (14 features, no data leakage):
+- **Typical range**: 70-75% test accuracy
+- **Class distribution**: 45% success / 55% failure (slightly imbalanced)
+- **Evaluation**: Prioritize F1 score over raw accuracy due to class imbalance
+
 ## Model Improvements Implemented
 
 ### 1. **Adam Optimizer (Manual Implementation)**
@@ -112,9 +232,20 @@ model_sgd = NeuralNetwork(..., optimizer='sgd', learning_rate=0.01)
 model_rmsprop = NeuralNetwork(..., optimizer='rmsprop', learning_rate=0.001)
 ```
 
+**Tip**: To systematically compare optimizers on the same data, uncomment the `compare_optimizers()` section in [compare_models.py](compare_models.py).
+
 ## Hyperparameter Tuning Recommendations
 
-### For Adam Optimizer:
+### Automated Grid Search
+
+For systematic hyperparameter tuning, uncomment the `grid_search_hyperparameters()` section in [compare_models.py](compare_models.py). This performs an exhaustive search over:
+- Learning rate: [0.0001, 0.001, 0.01]
+- L2 lambda: [0.001, 0.01, 0.1]
+- Dropout rate: [0.0, 0.2, 0.5]
+
+**Note**: Grid search can take significant time (27 configurations total).
+
+### Manual Tuning - For Adam Optimizer:
 - **Learning rate**: 0.001 (default), try 0.0001 - 0.01
 - **L2 lambda**: 0.01 (default), try 0.001 - 0.1
 - **Dropout**: 0.2 (default), try 0.0 - 0.5
@@ -159,6 +290,22 @@ Gradient_w = Gradient_BCE + (λ / m) * w
 
 ## Performance Comparison
 
+### Running Model Comparisons
+
+To compare all models systematically, use the comparison script:
+```bash
+python models/compare_models.py
+```
+
+This will train and evaluate:
+- Logistic Regression
+- Decision Tree
+- Random Forest
+- SVM (RBF kernel)
+- Neural Network (with Adam, L2, Dropout, Early Stopping)
+
+The script reports Train/Test Accuracy, Precision, Recall, and F1 Score for each model, and selects the best performer based on Test F1 Score.
+
 ### Expected improvements with Adam vs SGD:
 - **Convergence speed**: 2-5x faster
 - **Final accuracy**: 0-5% better
@@ -169,5 +316,12 @@ Gradient_w = Gradient_BCE + (λ / m) * w
 - **Neural Network target**: 72-75% accuracy range
 - **Before data cleaning**: 100% (unrealistic - data leakage!)
 - **After data cleaning**: 70-75% (realistic for challenging prediction task)
+
+### Model Selection Guidance
+
+- **For interpretability**: Use Logistic Regression or Decision Tree
+- **For best performance**: Compare all models using `compare_models.py`
+- **For feature importance**: Use Random Forest
+- **For complex patterns**: Use Neural Network or SVM
 
 See [FEATURE_SELECTION_ANALYSIS.md](../FEATURE_SELECTION_ANALYSIS.md) for details on data cleaning process.
