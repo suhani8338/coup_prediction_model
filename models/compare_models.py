@@ -361,21 +361,23 @@ def compare_ml_models(X_train, X_test, y_train, y_test):
         'test_f1': f1_score(y_test, y_test_pred, zero_division=0)
     }
     
-    # 5. Neural Network
+    # 5. Neural Network (IMPROVED HYPERPARAMETERS)
     print(f"\n{'='*80}")
-    print("Training Neural Network")
+    print("Training Neural Network (Optimized)")
     print(f"{'='*80}")
     
     model, metrics = train_and_evaluate(
         X_train, X_test, y_train, y_test,
+        layer_sizes=[14, 128, 64, 32, 1],  # Deeper & wider architecture
         optimizer='adam',
-        learning_rate=0.001,
-        l2_lambda=0.01,
-        dropout_rate=0.2,
-        epochs=500,
-        batch_size=32,
+        learning_rate=0.005,  # Higher learning rate
+        l2_lambda=0.001,  # Less L2 regularization
+        dropout_rate=0.1,  # Less dropout for small dataset
+        epochs=1000,  # More epochs
+        batch_size=16,  # Smaller batch size for better generalization
         verbose=False,
-        early_stopping_patience=30
+        early_stopping_patience=50,  # More patience
+        lr_decay=0.98  # Learning rate decay
     )
     
     results['Neural Network'] = {

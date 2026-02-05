@@ -224,12 +224,12 @@ if __name__ == "__main__":
         # Train and evaluate
         model, metrics = train_and_evaluate(
             X_train, X_test, y_train, y_test,
-            layer_sizes=None,  # Uses default [input_size, 32, 16, 1]
+            layer_sizes=None,  # Uses default [input_size, 32, 16, 1]]
             learning_rate=0.001,
             optimizer='adam',
             l2_lambda=0.01,
             dropout_rate=0.2,
-            epochs=1000,
+            epochs=1500,
             batch_size=32,
             verbose=True,
             early_stopping_patience=50
