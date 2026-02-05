@@ -65,6 +65,16 @@ def train_and_evaluate(X_train, X_test, y_train, y_test,
     X_train_sub = X_train[val_size:]
     y_train_sub = y_train[val_size:]
     
+    # Ensure y arrays are 2D for neural network (reshape if needed)
+    if y_train.ndim == 1:
+        y_train = y_train.reshape(-1, 1)
+    if y_test.ndim == 1:
+        y_test = y_test.reshape(-1, 1)
+    if y_val.ndim == 1:
+        y_val = y_val.reshape(-1, 1)
+    if y_train_sub.ndim == 1:
+        y_train_sub = y_train_sub.reshape(-1, 1)
+    
     # Determine architecture
     if layer_sizes is None:
         input_size = X_train.shape[1]

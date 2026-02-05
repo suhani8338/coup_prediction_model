@@ -1,15 +1,152 @@
 """
-Hyperparameter tuning and model comparison script
+Model comparison script - comparing Neural Network with traditional ML models
 """
 
 import numpy as np
 import sys
 import os
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, 
+    f1_score, confusion_matrix, classification_report
+)
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
 from models.train_neural_network import train_and_evaluate, plot_results
+
+
+def compare_ml_models(X_train, X_test, y_train, y_test):
+    """Compare Neural Network with traditional ML models"""
+    print("=" * 80)
+    print("COMPARING NEURAL NETWORK WITH TRADITIONAL ML MODELS")
+    print("=" * 80)
+    
+    results = {}
+    
+    # 1. Logistic Regression
+    print(f"\n{'='*80}")
+    print("Training Logistic Regression")
+    print(f"{'='*80}")
+    lr_model = LogisticRegression(max_iter=1000, random_state=42)
+    lr_model.fit(X_train, y_train)
+    
+    y_train_pred = lr_model.predict(X_train)
+    y_test_pred = lr_model.predict(X_test)
+    
+    results['Logistic Regression'] = {
+        'train_accuracy': accuracy_score(y_train, y_train_pred),
+        'test_accuracy': accuracy_score(y_test, y_test_pred),
+        'test_precision': precision_score(y_test, y_test_pred, zero_division=0),
+        'test_recall': recall_score(y_test, y_test_pred, zero_division=0),
+        'test_f1': f1_score(y_test, y_test_pred, zero_division=0)
+    }
+    
+    # 2. Decision Tree
+    print(f"\n{'='*80}")
+    print("Training Decision Tree")
+    print(f"{'='*80}")
+    dt_model = DecisionTreeClassifier(max_depth=10, random_state=42)
+    dt_model.fit(X_train, y_train)
+    
+    y_train_pred = dt_model.predict(X_train)
+    y_test_pred = dt_model.predict(X_test)
+    
+    results['Decision Tree'] = {
+        'train_accuracy': accuracy_score(y_train, y_train_pred),
+        'test_accuracy': accuracy_score(y_test, y_test_pred),
+        'test_precision': precision_score(y_test, y_test_pred, zero_division=0),
+        'test_recall': recall_score(y_test, y_test_pred, zero_division=0),
+        'test_f1': f1_score(y_test, y_test_pred, zero_division=0)
+    }
+    
+    # 3. Random Forest
+    print(f"\n{'='*80}")
+    print("Training Random Forest")
+    print(f"{'='*80}")
+    rf_model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+    rf_model.fit(X_train, y_train)
+    
+    y_train_pred = rf_model.predict(X_train)
+    y_test_pred = rf_model.predict(X_test)
+    
+    results['Random Forest'] = {
+        'train_accuracy': accuracy_score(y_train, y_train_pred),
+        'test_accuracy': accuracy_score(y_test, y_test_pred),
+        'test_precision': precision_score(y_test, y_test_pred, zero_division=0),
+        'test_recall': recall_score(y_test, y_test_pred, zero_division=0),
+        'test_f1': f1_score(y_test, y_test_pred, zero_division=0)
+    }
+    
+    # 4. SVM
+    print(f"\n{'='*80}")
+    print("Training SVM (RBF kernel)")
+    print(f"{'='*80}")
+    svm_model = SVC(kernel='rbf', random_state=42)
+    svm_model.fit(X_train, y_train)
+    
+    y_train_pred = svm_model.predict(X_train)
+    y_test_pred = svm_model.predict(X_test)
+    
+    results['SVM'] = {
+        'train_accuracy': accuracy_score(y_train, y_train_pred),
+        'test_accuracy': accuracy_score(y_test, y_test_pred),
+        'test_precision': precision_score(y_test, y_test_pred, zero_division=0),
+        'test_recall': recall_score(y_test, y_test_pred, zero_division=0),
+        'test_f1': f1_score(y_test, y_test_pred, zero_division=0)
+    }
+    
+    # 5. Neural Network
+    print(f"\n{'='*80}")
+    print("Training Neural Network")
+    print(f"{'='*80}")
+    
+    model, metrics = train_and_evaluate(
+        X_train, X_test, y_train, y_test,
+        optimizer='adam',
+        learning_rate=0.001,
+        l2_lambda=0.01,
+        dropout_rate=0.2,
+        epochs=500,
+        batch_size=32,
+        verbose=False,
+        early_stopping_patience=30
+    )
+    
+    results['Neural Network'] = {
+        'train_accuracy': metrics['train']['accuracy'],
+        'test_accuracy': metrics['test']['accuracy'],
+        'test_precision': metrics['test']['precision'],
+        'test_recall': metrics['test']['recall'],
+        'test_f1': metrics['test']['f1']
+    }
+    
+    # Print comparison
+    print("\n" + "=" * 80)
+    print("RESULTS SUMMARY - ALL MODELS")
+    print("=" * 80)
+    print(f"{'Model':<20} {'Train Acc':<12} {'Test Acc':<12} {'Precision':<12} {'Recall':<12} {'F1 Score':<12}")
+    print("-" * 80)
+    
+    for model_name, result in results.items():
+        print(f"{model_name:<20} "
+              f"{result['train_accuracy']:<12.4f} "
+              f"{result['test_accuracy']:<12.4f} "
+              f"{result['test_precision']:<12.4f} "
+              f"{result['test_recall']:<12.4f} "
+              f"{result['test_f1']:<12.4f}")
+    
+    # Find best model
+    best_model = max(results.items(), key=lambda x: x[1]['test_f1'])
+    print("\n" + "=" * 80)
+    print(f"BEST MODEL: {best_model[0]} (F1 Score: {best_model[1]['test_f1']:.4f})")
+    print("=" * 80)
+    
+    return results
 
 
 def compare_optimizers(X_train, X_test, y_train, y_test):
@@ -147,18 +284,29 @@ if __name__ == "__main__":
         y_train = np.load(os.path.join(project_root, 'data', 'y_train.npy'))
         y_test = np.load(os.path.join(project_root, 'data', 'y_test.npy'))
         
+        # Ensure y arrays are 1D (sklearn expects this)
+        y_train = y_train.ravel() if y_train.ndim > 1 else y_train
+        y_test = y_test.ravel() if y_test.ndim > 1 else y_test
+        
         print(f"Data loaded: Train {X_train.shape}, Test {X_test.shape}\n")
         
-        # Compare optimizers
-        optimizer_results = compare_optimizers(X_train, X_test, y_train, y_test)
+        # Main comparison: Neural Network vs Traditional ML Models
+        model_results = compare_ml_models(X_train, X_test, y_train, y_test)
         
         print("\n\n")
         
-        # Grid search (warning: takes longer)
-        # Uncomment to run full grid search
+        # Optional: Compare different optimizers for Neural Network
+        # Uncomment to run optimizer comparison
+        # print("\n" + "="*80)
+        # print("OPTIONAL: NEURAL NETWORK OPTIMIZER COMPARISON")
+        # print("="*80)
+        # optimizer_results = compare_optimizers(X_train, X_test, y_train, y_test)
+        
+        # Optional: Grid search (warning: takes longer)
+        # Uncomment to run full grid search for Neural Network hyperparameters
         # best_params, all_results = grid_search_hyperparameters(X_train, X_test, y_train, y_test)
         
-        print("\n✓ Comparison complete!")
+        print("\n✓ Model comparison complete!")
         
     except FileNotFoundError:
         print("Error: Data files not found. Run the preprocessing notebook first.")
