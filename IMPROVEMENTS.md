@@ -2,7 +2,7 @@
 
 ## What Was Improved
 
-### 0. **Data Preprocessing & Feature Selection** 🔧
+### 0. **Data Preprocessing & Feature Selection** 
 Critical data quality improvements that directly impact model performance.
 
 **Data Leakage Removed:**
@@ -27,7 +27,7 @@ Critical data quality improvements that directly impact model performance.
 
 **Documentation**: See [FEATURE_SELECTION_ANALYSIS.md](FEATURE_SELECTION_ANALYSIS.md) for detailed analysis
 
-### 1. **Adam Optimizer (Manually Implemented)** ✨
+### 1. **Adam Optimizer (Manually Implemented)** 
 The crown jewel of these improvements. Adam is significantly better than vanilla SGD.
 
 **Implementation Details:**
@@ -237,7 +237,7 @@ Together they prevent the model from being too confident about training data pat
 ---
 
 **Next Steps:**
-1. ✅ **Data cleaned**: Removed outcome-dependent variables (see FEATURE_SELECTION_ANALYSIS.md)
+1. **Data cleaned**: Removed outcome-dependent variables (see FEATURE_SELECTION_ANALYSIS.md)
 2. Run `train_neural_network.py` to train on clean 14-feature dataset
 3. Try `compare_models.py` to compare optimizers
 4. Aim to match/exceed 72.68% baseline (Random Forest)
