@@ -1,14 +1,14 @@
 # Neural Network Improvement Guide
 
-## 🎯 Goal
+## Goal
 Beat baseline models (Logistic Regression, Decision Tree, Random Forest, SVM) with optimized neural network.
 
-## 📊 Current Status
+## Current Status
 - **Current Architecture**: [14, 32, 16, 1] - relatively shallow
 - **Training Samples**: 784 (small dataset - risk of overfitting)
 - **Features**: 14
 
-## ⚡ Quick Wins (Try These First)
+## Quick Wins (Try These First)
 
 ### 1. **Improve Architecture**
 Current default is too shallow. Try:
@@ -45,7 +45,7 @@ early_stopping_patience=75  # Instead of 30
 
 ---
 
-## 🔬 Systematic Approach
+## Systematic Approach
 
 ### Step 1: Run Quick Architecture Search
 ```bash
@@ -65,7 +65,7 @@ python models/compare_models.py
 
 ---
 
-## 🧪 Individual Experiments
+## Individual Experiments
 
 Run specific experiments:
 ```bash
@@ -84,7 +84,7 @@ python models/improve_nn.py --exp 4
 
 ---
 
-## 📈 What to Look For
+## What to Look For
 
 ### Signs of Overfitting:
 - **Train accuracy >> Test accuracy** (gap > 5%)
@@ -101,7 +101,7 @@ python models/improve_nn.py --exp 4
 
 ---
 
-## 🎓 Advanced Techniques (Future Enhancements)
+## Advanced Techniques (Future Enhancements)
 
 ### 1. **Batch Normalization**
 Add to `neural_network.py` for faster convergence and better generalization.
@@ -127,7 +127,7 @@ Use k-fold cross-validation instead of single train/test split.
 
 ---
 
-## 📝 Expected Improvements
+## Expected Improvements
 
 | Technique | Expected F1 Improvement |
 |-----------|------------------------|
@@ -139,7 +139,7 @@ Use k-fold cross-validation instead of single train/test split.
 
 ---
 
-## 🚨 Common Pitfalls
+## Common Pitfalls
 
 1. **Too much regularization** - Makes model too simple
 2. **Learning rate too high** - Unstable training, doesn't converge
@@ -150,7 +150,7 @@ Use k-fold cross-validation instead of single train/test split.
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 - [ ] Run architecture search
 - [ ] Find optimal learning rate
@@ -164,7 +164,7 @@ Use k-fold cross-validation instead of single train/test split.
 
 ---
 
-## 🔍 Debugging Tips
+## Debugging Tips
 
 ### If model performs poorly:
 1. Check loss curves - are they decreasing?
@@ -189,7 +189,7 @@ Use k-fold cross-validation instead of single train/test split.
 
 ---
 
-## 📂 Files
+## Files
 
 - **improve_nn.py** - Systematic experiments script (NEW)
 - **compare_models.py** - Compare NN with baseline models
@@ -198,7 +198,7 @@ Use k-fold cross-validation instead of single train/test split.
 
 ---
 
-## 🎯 Next Steps
+## Next Steps
 
 1. **Run**: `python models/improve_nn.py --quick`
 2. **Review**: Check which architecture works best

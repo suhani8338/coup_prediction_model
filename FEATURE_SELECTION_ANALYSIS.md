@@ -4,7 +4,7 @@
 
 After analyzing correlation values and understanding the codebook context, **DO NOT drop features with low correlation (-0.09 to 0.09)**. Instead, the critical issue is **data leakage** from outcome-dependent variables that must be removed.
 
-## 🚨 Critical Finding: Data Leakage
+## Critical Finding: Data Leakage
 
 ### Variables REMOVED (Outcome-Dependent):
 1. **`unrealized`** - Perfect inverse of target (-1.0 correlation)
@@ -15,7 +15,7 @@ After analyzing correlation values and understanding the codebook context, **DO 
 
 These variables describe **what happened** to the coup (the outcome), not characteristics that could predict success.
 
-## ✅ Final Feature Set (14 Features)
+## Final Feature Set (14 Features)
 
 ### Coup Actor Types (Who Initiated - 5 features):
 - `military`: Military-led coup
@@ -37,23 +37,23 @@ These variables describe **what happened** to the coup (the outcome), not charac
 - `month_cos`: Month (cyclical encoding - cosine)
 - `country_freq`: Country's historical coup frequency
 
-## 📊 Correlation Analysis Results
+## Correlation Analysis Results
 
 ### Features with Low Correlation BUT High Model Importance:
 
 | Feature | Correlation | RF Importance | Keep? |
 |---------|-------------|---------------|-------|
-| `military` | 0.0097 | 0.0371 | ✅ YES |
-| `month_sin` | -0.0354 | 0.0269 | ✅ YES |
-| `month_cos` | 0.0109 | 0.0209 | ✅ YES |
-| `foreign` | -0.0089 | 0.0069 | ✅ YES |
-| `counter` | 0.0726 | 0.0097 | ✅ YES |
-| `year_norm` | -0.0686 | 0.0711 | ✅ YES |
-| `country_freq` | -0.0105 | 0.0385 | ✅ YES |
+| `military` | 0.0097 | 0.0371 | YES |
+| `month_sin` | -0.0354 | 0.0269 | YES |
+| `month_cos` | 0.0109 | 0.0209 | YES |
+| `foreign` | -0.0089 | 0.0069 | YES |
+| `counter` | 0.0726 | 0.0097 | YES |
+| `year_norm` | -0.0686 | 0.0711 | YES |
+| `country_freq` | -0.0105 | 0.0385 | YES |
 
 **Key Insight**: Features like `military` have near-zero correlation (0.0097) but contribute 3.7% to model importance. This demonstrates why correlation-based filtering would be harmful.
 
-## 🎯 Why NOT to Drop Low-Correlation Features
+## Why NOT to Drop Low-Correlation Features
 
 ### 1. **Neural Networks Learn Non-Linear Patterns**
 - Individual correlations measure linear relationships only
@@ -75,7 +75,7 @@ These variables describe **what happened** to the coup (the outcome), not charac
 - Cross-validation accuracy: 72.68% (realistic performance)
 - Removing features with importance >1% would discard 11/14 features
 
-## 📈 Model Performance
+## Model Performance
 
 ### Before Removing Data Leakage:
 - CV Accuracy: **100%** (suspicious!)
@@ -86,18 +86,18 @@ These variables describe **what happened** to the coup (the outcome), not charac
 - Realistic performance for a challenging prediction task
 - Class distribution: ~45% success, ~55% failure
 
-## 🔧 Implementation Changes
+## Implementation Changes
 
 ### Updated Data Pipeline:
 ```python
 # BEFORE (with data leakage):
 X = df.drop(columns=["realized"])
-# Includes: unrealized, conspiracy, attempt ❌
+# Includes: unrealized, conspiracy, attempt 
 
 # AFTER (clean):
 outcome_vars = ['unrealized', 'conspiracy', 'attempt']
 X = df.drop(columns=["realized"] + outcome_vars)
-# Only true predictive features ✅
+# Only true predictive features 
 ```
 
 ### New Dataset Dimensions:
@@ -105,7 +105,7 @@ X = df.drop(columns=["realized"] + outcome_vars)
 - **Test set**: 197 samples × 14 features
 - **Features**: All coup characteristics (no outcome variables)
 
-## 🎓 Lessons Learned from Codebook
+## Lessons Learned from Codebook
 
 ### Event Classification (Mutually Exclusive):
 The dataset categorizes coup events into:
@@ -124,12 +124,12 @@ These are **outcome labels**, not independent predictors!
 - **Military coups**: 47% success rate
 - **Dissident-led**: 9% success rate (strong negative correlation: -0.478)
 
-## ✅ Final Recommendations
+## Final Recommendations
 
 ### 1. Feature Selection Strategy:
-- ✅ **KEEP** all 14 clean features (no correlation-based filtering)
-- ❌ **REMOVE** outcome-dependent variables (unrealized, conspiracy, attempt)
-- ✅ **USE** regularization (dropout, L1/L2) instead of manual feature selection
+- **KEEP** all 14 clean features (no correlation-based filtering)
+- **REMOVE** outcome-dependent variables (unrealized, conspiracy, attempt)
+- **USE** regularization (dropout, L1/L2) instead of manual feature selection
 
 ### 2. Model Training:
 - Use the cleaned dataset (14 features, no leakage)
@@ -148,16 +148,3 @@ These are **outcome labels**, not independent predictors!
 - Use stratified K-fold cross-validation
 - Report precision/recall (not just accuracy) due to class imbalance
 
-## 📁 Updated Files
-
-- **Data**: [data/X_train.npy](data/X_train.npy) - 784×14 (clean features)
-- **Data**: [data/X_test.npy](data/X_test.npy) - 197×14 (clean features)
-- **Notebook**: [notebooks/eda.ipynb](notebooks/eda.ipynb) - Updated with analysis
-
-## 🔍 Next Steps
-
-1. ✅ Retrain neural network with clean 14-feature dataset
-2. ✅ Compare performance to 72.68% Random Forest baseline
-3. ✅ Implement proper evaluation metrics (precision, recall, F1)
-4. ✅ Consider ensemble methods combining multiple models
-5. ✅ Document realistic expectations (70-75% accuracy range)
